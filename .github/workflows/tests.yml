@@ -32,8 +32,14 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Test (on Ubuntu)
-        run: go test -coverprofile=coverage.txt -covermode=atomic ./...
+        run: |
+          sleep 30
+          go test -coverprofile=coverage.txt -covermode=atomic ./...
         if: runner.os == 'Linux'
+      - name: Show container logs on failure
+        run: docker-compose -f testdata/docker/docker-compose.yml logs
+        if: ${{ runner.os == 'Linux' && failure() }}
+        continue-on-error: true
       - name: Test (on macOS)
         run: go test -short -coverprofile=coverage.txt -covermode=atomic ./...
         if: runner.os == 'macOS'
