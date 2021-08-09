@@ -1,0 +1,45 @@
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 12 1 * *'
+name: tests
+jobs:
+  Test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+          - 1.14.x
+          - 1.15.x
+          - 1.16.x
+          - 1.x
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set git to turn off auto-converting line endings
+        run: git config --global core.autocrlf false
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Start containers
+        run: docker-compose -f testdata/docker/docker-compose.yml up -d
+        if: runner.os == 'Linux'
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Test (on Ubuntu)
+        run: go test -coverprofile=coverage.txt -covermode=atomic ./...
+        if: runner.os == 'Linux'
+      - name: Test (on macOS)
+        run: go test -short -coverprofile=coverage.txt -covermode=atomic ./...
+        if: runner.os == 'macOS'
+      - name: Test (on Windows)
+        run: go test -short -coverprofile=coverage.txt -covermode=atomic ./...
+        shell: cmd
+        if: runner.os == 'Windows'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1

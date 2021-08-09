@@ -1,0 +1,46 @@
+builds:
+  - id: ipsec_exporter
+    main: ./cmd/ipsec_exporter
+    ldflags: |
+      -s
+      -X github.com/prometheus/common/version.Version={{.Version}}
+      -X github.com/prometheus/common/version.Revision={{.FullCommit}}
+      -X github.com/prometheus/common/version.Branch={{.Branch}}
+      -X github.com/prometheus/common/version.BuildUser={{.Env.USER}}@{{.Env.HOST}}
+      -X github.com/prometheus/common/version.BuildDate={{time "20060102-15:04:05"}}
+    tags:
+      - netgo
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_amd64
+      - linux_386
+      - darwin_amd64
+      - windows_amd64
+      - windows_386
+      - freebsd_amd64
+      - freebsd_386
+      - openbsd_amd64
+      - openbsd_386
+      - netbsd_amd64
+      - netbsd_386
+      - dragonfly_amd64
+      - linux_arm
+      - linux_arm64
+      - freebsd_arm
+      - openbsd_arm
+      - netbsd_arm
+      - aix_ppc64
+      - linux_ppc64
+      - linux_ppc64le
+      - linux_mips64
+      - linux_mips64le
+      - linux_s390x
+
+archives:
+  - id: ipsec_exporter
+    builds:
+      - ipsec_exporter
+    format_overrides:
+      - goos: windows
+        format: zip
