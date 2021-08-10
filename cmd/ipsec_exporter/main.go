@@ -40,7 +40,7 @@ func main() {
 		collector     = kingpin.Flag("collector", "Collector type to scrape metrics with. One of: [vici, ipsec]").Default("vici").Enum("vici", "ipsec")
 		ipsecCmd      = newCmd(kingpin.Flag("ipsec.command", "Command to scrape IPsec metrics from.").PlaceHolder(`"ipsec statusall"`).Default("ipsec statusall"))
 		webConfig     = webflag.AddFlags(kingpin.CommandLine)
-		listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9844").String()
+		listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9903").String()
 		metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
 	)
 	promlogConfig := &promlog.Config{}
