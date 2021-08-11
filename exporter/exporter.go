@@ -42,7 +42,7 @@ var (
 	reSAVersion        = regexp.MustCompile(`^(.+) SPIs:`)
 	reSARemoteIdentity = regexp.MustCompile(`^Remote (.+) identity: (.+)$`)
 	reChildSAPrefix    = regexp.MustCompile(`^\s*([^{]+){(\d+)}:  `)
-	reChildSAStatus    = regexp.MustCompile(`^([^,]+), ([^,]+), reqid \d+, (.+) SPIs:.+`)
+	reChildSAStatus    = regexp.MustCompile(`^([^,]+), ([^,]+), reqid (\d+), (.+) SPIs:.+`)
 	reChildSATraffic   = regexp.MustCompile(`(\d+) bytes_i(?: \((\d+) pkts?[^)]*\))?, (\d+) bytes_o(?: \((\d+) pkts?[^)]*\))?`)
 	reChildSATS        = regexp.MustCompile(`^ (.+) === (.+)$`)
 )
@@ -66,6 +66,7 @@ var (
 		"uid",
 		"mode",
 		"protocol",
+		"reqid",
 		"local_ts",
 		"remote_ts",
 	}
@@ -377,7 +378,9 @@ func (e *Exporter) scrapeIpsec() (m metrics, ok bool) {
 						if matches != nil {
 							childSA2.State = matches[1]
 							childSA2.Mode = matches[2]
-							childSA2.Protocol = matches[3]
+							n, _ := strconv.ParseUint(matches[3], 10, 64)
+							childSA2.ReqID = uint32(n)
+							childSA2.Protocol = matches[4]
 							continue
 						}
 						matches = reChildSATraffic.FindStringSubmatch(line)
@@ -455,6 +458,7 @@ func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
 				strconv.FormatUint(uint64(childSA.UID), 10),
 				childSA.Mode,
 				childSA.Protocol,
+				strconv.FormatUint(uint64(childSA.ReqID), 10),
 				strings.Join(childSA.LocalTS, ", "),
 				strings.Join(childSA.RemoteTS, ", "),
 			}

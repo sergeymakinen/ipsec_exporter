@@ -31,12 +31,12 @@ make
 | ipsec_offline_pool_ips | Number of leases offline. | name, address
 | ipsec_ike_sa_state | IKE SA state. Created: 0, connecting: 1, established: 2, passive: 3, rekeying: 4, rekeyed: 5, deleting: 6, destroying: 7. | name, uid, version, local_host, local_id, remote_host, remote_id, remote_identity, vips
 | ipsec_ike_sa_established_seconds | Number of seconds since the IKE SA has been established. | name, uid, version, local_host, local_id, remote_host, remote_id, remote_identity, vips
-| ipsec_child_sa_state | Child SA state. Created: 0, routed: 1, installing: 2, installed: 3, updating: 4, rekeying: 5, rekeyed: 6, retrying: 7, deleting: 8, deleted: 9, destroying: 10. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
-| ipsec_child_sa_bytes_in | Number of input bytes processed. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
-| ipsec_child_sa_packets_in | Number of input packets processed. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
-| ipsec_child_sa_bytes_out | Number of output bytes processed. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
-| ipsec_child_sa_packets_out | Number of output packets processed. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
-| ipsec_child_sa_installed_seconds | Number of seconds since the child SA has been installed. | ike_sa_name, ike_sa_uid, name, uid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_state | Child SA state. Created: 0, routed: 1, installing: 2, installed: 3, updating: 4, rekeying: 5, rekeyed: 6, retrying: 7, deleting: 8, deleted: 9, destroying: 10. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_bytes_in | Number of input bytes processed. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_packets_in | Number of input packets processed. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_bytes_out | Number of output bytes processed. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_packets_out | Number of output packets processed. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
+| ipsec_child_sa_installed_seconds | Number of seconds since the child SA has been installed. | ike_sa_name, ike_sa_uid, name, uid, reqid, mode, protocol, local_ts, remote_ts
 
 ### Flags
 

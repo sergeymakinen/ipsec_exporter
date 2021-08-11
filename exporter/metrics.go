@@ -66,6 +66,7 @@ type ikeSA struct {
 type childSA struct {
 	Name       string   `vici:"name"`
 	UID        uint32   `vici:"uniqueid"`
+	ReqID      uint32   `vici:"reqid"`
 	State      string   `vici:"state"`
 	Mode       string   `vici:"mode"`
 	Protocol   string   `vici:"protocol"`

@@ -80,6 +80,7 @@ func TestExporter(t *testing.T) {
 						"named-3": {
 							Name:       "named",
 							UID:        3,
+							ReqID:      4,
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
@@ -93,6 +94,7 @@ func TestExporter(t *testing.T) {
 						"named-4": {
 							Name:       "named",
 							UID:        4,
+							ReqID:      5,
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
@@ -119,6 +121,7 @@ func TestExporter(t *testing.T) {
 						"named-5": {
 							Name:       "named",
 							UID:        5,
+							ReqID:      6,
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
