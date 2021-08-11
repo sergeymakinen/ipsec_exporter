@@ -62,6 +62,13 @@ var (
 	childSALbls = []string{
 		"ike_sa_name",
 		"ike_sa_uid",
+		"ike_sa_version",
+		"ike_sa_local_host",
+		"ike_sa_local_id",
+		"ike_sa_remote_host",
+		"ike_sa_remote_id",
+		"ike_sa_remote_identity",
+		"ike_sa_vips",
 		"name",
 		"uid",
 		"mode",
@@ -451,9 +458,7 @@ func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.establishedIKESA, prometheus.GaugeValue, float64(*ikeSA.Established), labelValues...)
 		}
 		for _, childSA := range ikeSA.ChildSAs {
-			labelValues = []string{
-				ikeSA.Name,
-				strconv.FormatUint(uint64(ikeSA.UID), 10),
+			childLabelValues := append(labelValues, []string{
 				childSA.Name,
 				strconv.FormatUint(uint64(childSA.UID), 10),
 				childSA.Mode,
@@ -461,14 +466,14 @@ func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
 				strconv.FormatUint(uint64(childSA.ReqID), 10),
 				strings.Join(childSA.LocalTS, ", "),
 				strings.Join(childSA.RemoteTS, ", "),
-			}
-			ch <- prometheus.MustNewConstMetric(e.childSAState, prometheus.GaugeValue, childSAStates[childSA.State], labelValues...)
-			ch <- prometheus.MustNewConstMetric(e.childSABytesIn, prometheus.GaugeValue, float64(childSA.InBytes), labelValues...)
-			ch <- prometheus.MustNewConstMetric(e.childSAPacketsIn, prometheus.GaugeValue, float64(childSA.InPackets), labelValues...)
-			ch <- prometheus.MustNewConstMetric(e.childSABytesOut, prometheus.GaugeValue, float64(childSA.OutBytes), labelValues...)
-			ch <- prometheus.MustNewConstMetric(e.childSAPacketsOut, prometheus.GaugeValue, float64(childSA.OutPackets), labelValues...)
+			}...)
+			ch <- prometheus.MustNewConstMetric(e.childSAState, prometheus.GaugeValue, childSAStates[childSA.State], childLabelValues...)
+			ch <- prometheus.MustNewConstMetric(e.childSABytesIn, prometheus.GaugeValue, float64(childSA.InBytes), childLabelValues...)
+			ch <- prometheus.MustNewConstMetric(e.childSAPacketsIn, prometheus.GaugeValue, float64(childSA.InPackets), childLabelValues...)
+			ch <- prometheus.MustNewConstMetric(e.childSABytesOut, prometheus.GaugeValue, float64(childSA.OutBytes), childLabelValues...)
+			ch <- prometheus.MustNewConstMetric(e.childSAPacketsOut, prometheus.GaugeValue, float64(childSA.OutPackets), childLabelValues...)
 			if childSA.Installed != nil {
-				ch <- prometheus.MustNewConstMetric(e.childSAInstalled, prometheus.GaugeValue, float64(*childSA.Installed), labelValues...)
+				ch <- prometheus.MustNewConstMetric(e.childSAInstalled, prometheus.GaugeValue, float64(*childSA.Installed), childLabelValues...)
 			}
 		}
 	}
