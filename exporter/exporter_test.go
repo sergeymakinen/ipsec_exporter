@@ -14,6 +14,9 @@ import (
 )
 
 func TestExporter(t *testing.T) {
+	now = func() time.Time {
+		return time.Unix(0, 0)
+	}
 	exporter, err := New(CollectorVICI, nil, time.Second, nil, log.NewNopLogger())
 	if err != nil {
 		t.Fatalf("New() = _, %v; want nil", err)
@@ -23,7 +26,7 @@ func TestExporter(t *testing.T) {
 		return metrics{
 			Stats: stats{
 				Uptime: uptime{
-					Since: time.Now().Round(time.Second).Add(-3 * time.Minute).Format("Jan _2 15:04:05 2006"),
+					Since: now().Round(time.Second).Add(-3 * time.Minute).Format("Jan _2 15:04:05 2006"),
 				},
 				Workers: workers{
 					Total: 10,

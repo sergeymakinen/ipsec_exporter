@@ -104,6 +104,8 @@ var (
 	}
 )
 
+var now = time.Now
+
 // Exporter collects IPsec stats via a VICI protocol or an ipsec binary
 // and exports them using the prometheus metrics package.
 type Exporter struct {
@@ -425,7 +427,7 @@ func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
 			level.Error(e.logger).Log("msg", "Failed to unmarshal uptime", "uptime", m.Stats.Uptime.Since, "err", err)
 			return
 		}
-		ch <- prometheus.MustNewConstMetric(e.uptime, prometheus.GaugeValue, time.Now().Round(time.Second).Sub(uptime).Seconds())
+		ch <- prometheus.MustNewConstMetric(e.uptime, prometheus.GaugeValue, now().Round(time.Second).Sub(uptime).Seconds())
 	}
 	ch <- prometheus.MustNewConstMetric(e.workers, prometheus.GaugeValue, float64(m.Stats.Workers.Total))
 	ch <- prometheus.MustNewConstMetric(e.idleWorkers, prometheus.GaugeValue, float64(m.Stats.Workers.Idle))
