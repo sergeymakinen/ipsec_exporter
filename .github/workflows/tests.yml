@@ -25,24 +25,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Start containers
-        run: docker-compose -f testdata/docker/docker-compose.yml up -d
+        run: |
+          for i in {1..10}; do
+            echo $i:
+            docker-compose -f testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true' | grep '64 bytes_i' && break || (docker-compose -f testdata/docker/docker-compose.yml up -d --force-recreate && sleep 30)
+          done
+          docker-compose -f testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true'
         if: runner.os == 'Linux'
       - name: Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
       - name: Test (on Ubuntu)
-        run: |
-          for i in {1..10}; do
-            echo $i:
-            docker-compose -f testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true' | grep host-host && break || sleep 15
-          done
-          go test -coverprofile=coverage.txt -covermode=atomic ./...
+        run: go test -coverprofile=coverage.txt -covermode=atomic ./...
         if: runner.os == 'Linux'
-      - name: Show container logs on failure
-        run: docker-compose -f testdata/docker/docker-compose.yml logs
-        if: ${{ runner.os == 'Linux' && failure() }}
-        continue-on-error: true
       - name: Test (on macOS)
         run: go test -short -coverprofile=coverage.txt -covermode=atomic ./...
         if: runner.os == 'macOS'
