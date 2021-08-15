@@ -135,7 +135,7 @@ type Exporter struct {
 	childSAInstalled  *prometheus.Desc
 }
 
-// Describe describes all the metrics exported by the memcached exporter. It
+// Describe describes all the metrics exported by the IPsec exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.up
@@ -159,7 +159,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.childSAInstalled
 }
 
-// Collect fetches the statistics from the configured memcached server, and
+// Collect fetches the statistics from strongswan/libreswan, and
 // delivers them as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	m, ok := e.scrape(e)
