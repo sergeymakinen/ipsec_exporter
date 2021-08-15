@@ -182,7 +182,6 @@ func TestExporter_Integration(t *testing.T) {
 		"ipsec_half_open_ike_sas",
 		"ipsec_ike_sa_state",
 		"ipsec_ike_sas",
-		"ipsec_queues",
 		"ipsec_up",
 	}
 	for _, td := range tests {

@@ -22,12 +22,6 @@ ipsec_ike_sa_state{local_host="172.31.0.1",local_id="moon",name="host-host",remo
 # HELP ipsec_ike_sas Number of currently registered IKE SAs.
 # TYPE ipsec_ike_sas gauge
 ipsec_ike_sas 1
-# HELP ipsec_queues Number of queued jobs.
-# TYPE ipsec_queues gauge
-ipsec_queues{priority="critical"} 0
-ipsec_queues{priority="high"} 0
-ipsec_queues{priority="low"} 0
-ipsec_queues{priority="medium"} 0
 # HELP ipsec_up Was the last scrape successful.
 # TYPE ipsec_up gauge
 ipsec_up 1
