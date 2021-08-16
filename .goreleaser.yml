@@ -1,6 +1,5 @@
 builds:
-  - id: ipsec_exporter
-    main: ./cmd/ipsec_exporter
+  - main: ./cmd/ipsec_exporter
     ldflags: |
       -s
       -X github.com/prometheus/common/version.Version={{.Version}}
@@ -38,10 +37,7 @@ builds:
       - linux_s390x
 
 archives:
-  - id: ipsec_exporter
-    builds:
-      - ipsec_exporter
-    format_overrides:
+  - format_overrides:
       - goos: windows
         format: zip
 
