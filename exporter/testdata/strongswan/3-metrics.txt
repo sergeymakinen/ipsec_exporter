@@ -1,0 +1,27 @@
+# HELP ipsec_active_workers Number of threads processing jobs.
+# TYPE ipsec_active_workers gauge
+ipsec_active_workers 5
+# HELP ipsec_half_open_ike_sas Number of IKE SAs in half-open state.
+# TYPE ipsec_half_open_ike_sas gauge
+ipsec_half_open_ike_sas 0
+# HELP ipsec_idle_workers Number of idle worker threads.
+# TYPE ipsec_idle_workers gauge
+ipsec_idle_workers 11
+# HELP ipsec_ike_sas Number of currently registered IKE SAs.
+# TYPE ipsec_ike_sas gauge
+ipsec_ike_sas 0
+# HELP ipsec_queues Number of queued jobs.
+# TYPE ipsec_queues gauge
+ipsec_queues{priority="critical"} 0
+ipsec_queues{priority="high"} 0
+ipsec_queues{priority="low"} 0
+ipsec_queues{priority="medium"} 0
+# HELP ipsec_up Was the last scrape successful.
+# TYPE ipsec_up gauge
+ipsec_up 1
+# HELP ipsec_uptime_seconds Number of seconds since the daemon started.
+# TYPE ipsec_uptime_seconds gauge
+ipsec_uptime_seconds -1.636791214e+09
+# HELP ipsec_workers_total Number of worker threads.
+# TYPE ipsec_workers_total gauge
+ipsec_workers_total 16

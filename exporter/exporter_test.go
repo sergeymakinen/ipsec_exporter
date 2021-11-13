@@ -1,10 +1,8 @@
 package exporter
 
 import (
-	"bytes"
-	"io/ioutil"
-	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -13,11 +11,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
-func TestExporter(t *testing.T) {
+func TestExporter_Collect(t *testing.T) {
 	now = func() time.Time {
 		return time.Unix(0, 0)
 	}
-	exporter, err := New(CollectorVICI, nil, time.Second, nil, log.NewNopLogger())
+	exporter, err := New(CollectorIpsec, nil, 0, nil, log.NewNopLogger())
 	if err != nil {
 		t.Fatalf("New() = _, %v; want nil", err)
 	}
@@ -28,7 +26,7 @@ func TestExporter(t *testing.T) {
 				Uptime: uptime{
 					Since: now().Round(time.Second).Add(-3 * time.Minute).Format("Jan _2 15:04:05 2006"),
 				},
-				Workers: workers{
+				Workers: &workers{
 					Total: 10,
 					Idle:  5,
 					Active: queues{
@@ -38,13 +36,13 @@ func TestExporter(t *testing.T) {
 						Low:      4,
 					},
 				},
-				Queues: queues{
+				Queues: &queues{
 					Critical: 1,
 					High:     2,
 					Medium:   3,
 					Low:      4,
 				},
-				Scheduled: 12,
+				Scheduled: newUint64(12),
 				IKESAs: ikeSAs{
 					Total:    10,
 					HalfOpen: 5,
@@ -83,28 +81,28 @@ func TestExporter(t *testing.T) {
 						"named-3": {
 							Name:       "named",
 							UID:        3,
-							ReqID:      4,
+							ReqID:      newUint32(4),
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
 							InBytes:    123,
-							InPackets:  456,
+							InPackets:  newUint64(456),
 							OutBytes:   789,
-							OutPackets: 901,
+							OutPackets: newUint64(901),
 							LocalTS:    []string{"192.168.0.0/24", "192.168.1.0/24"},
 							RemoteTS:   []string{"192.168.2.0/24", "192.168.3.0/24"},
 						},
 						"named-4": {
 							Name:       "named",
 							UID:        4,
-							ReqID:      5,
+							ReqID:      newUint32(5),
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
 							InBytes:    124,
-							InPackets:  457,
+							InPackets:  newUint64(457),
 							OutBytes:   790,
-							OutPackets: 902,
+							OutPackets: newUint64(902),
 							Installed:  &sec,
 							LocalTS:    []string{"192.168.0.0/24", "192.168.1.0/24"},
 							RemoteTS:   []string{"192.168.2.0/24", "192.168.3.0/24"},
@@ -124,14 +122,14 @@ func TestExporter(t *testing.T) {
 						"named-5": {
 							Name:       "named",
 							UID:        5,
-							ReqID:      6,
+							ReqID:      newUint32(6),
 							State:      "INSTALLED",
 							Mode:       "TUNNEL",
 							Protocol:   "AH",
 							InBytes:    125,
-							InPackets:  458,
+							InPackets:  newUint64(458),
 							OutBytes:   791,
-							OutPackets: 903,
+							OutPackets: newUint64(903),
 							LocalTS:    []string{"192.168.0.0/24", "192.168.1.0/24"},
 							RemoteTS:   []string{"192.168.2.0/24", "192.168.3.0/24"},
 						},
@@ -140,7 +138,7 @@ func TestExporter(t *testing.T) {
 			},
 		}, true
 	}
-	f, err := os.Open("testdata/metrics-1.txt")
+	f, err := os.Open("testdata/metrics.txt")
 	if err != nil {
 		t.Fatalf("os.Open() = _, %v; want nil", err)
 	}
@@ -150,49 +148,24 @@ func TestExporter(t *testing.T) {
 	}
 }
 
-func TestExporter_Integration(t *testing.T) {
+func TestExporter_Collect_Unknown(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping TestExporter_Integration during short test")
+		t.Skip("skipping TestExporter_Collect_Unknown during short test")
 	}
-	tests := []struct {
-		Name          string
-		CollectorType int
-	}{
-		{
-			Name:          "VICI",
-			CollectorType: CollectorVICI,
-		},
-		{
-			Name:          "ipsec",
-			CollectorType: CollectorIpsec,
-		},
-	}
-	address, _ := url.Parse("tcp://127.0.0.1:4502")
-	cmd, _ := shlex.Split("docker-compose -f ../testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true'")
-	b, err := ioutil.ReadFile("testdata/metrics-2.txt")
+	cmd, _ := shlex.Split("docker-compose -f ../testdata/docker/libreswan/docker-compose.yml exec -T moon /bin/ls")
+	exporter, err := New(CollectorIpsec, nil, time.Second, cmd, log.NewNopLogger())
 	if err != nil {
-		panic("failed to read testdata/metrics-2.txt: " + err.Error())
+		t.Fatalf("New() = _, %v; want nil", err)
 	}
-	metricNames := []string{
-		"ipsec_child_sa_bytes_in",
-		"ipsec_child_sa_bytes_out",
-		"ipsec_child_sa_packets_in",
-		"ipsec_child_sa_packets_out",
-		"ipsec_child_sa_state",
-		"ipsec_half_open_ike_sas",
-		"ipsec_ike_sa_state",
-		"ipsec_ike_sas",
-		"ipsec_up",
-	}
-	for _, td := range tests {
-		t.Run(td.Name, func(t *testing.T) {
-			exporter, err := New(td.CollectorType, address, time.Second, cmd, log.NewNopLogger())
-			if err != nil {
-				t.Fatalf("New() = _, %v; want nil", err)
-			}
-			if err := testutil.CollectAndCompare(exporter, bytes.NewReader(b), metricNames...); err != nil {
-				t.Errorf("testutil.CollectAndCompare() = %v; want nil", err)
-			}
-		})
+	expected := `
+# HELP ipsec_up Was the last scrape successful.
+# TYPE ipsec_up gauge
+ipsec_up 0
+`
+	if err := testutil.CollectAndCompare(exporter, strings.NewReader(expected)); err != nil {
+		t.Errorf("testutil.CollectAndCompare() = %v; want nil", err)
 	}
 }
+
+func newUint32(n uint32) *uint32 { return &n }
+func newUint64(n uint64) *uint64 { return &n }

@@ -6,14 +6,12 @@ services:
     cap_add:
       - NET_ADMIN
     privileged: true
-    container_name: moon
+    container_name: libreswan-moon
     networks:
-      strongswan:
-        ipv4_address: 172.31.0.1
+      libreswan:
+        ipv4_address: 172.31.1.1
         aliases:
           - moon
-    ports:
-      - '4502:4502'
 
   sun:
     build:
@@ -22,15 +20,15 @@ services:
       - NET_ADMIN
     privileged: true
     networks:
-      strongswan:
-        ipv4_address: 172.31.0.2
+      libreswan:
+        ipv4_address: 172.31.1.2
         aliases:
           - sun
 
 networks:
-  strongswan:
+  libreswan:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.31.0.0/24
-          gateway: 172.31.0.254
+        - subnet: 172.31.1.0/24
+          gateway: 172.31.1.254

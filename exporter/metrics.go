@@ -7,11 +7,11 @@ type metrics struct {
 }
 
 type stats struct {
-	Uptime    uptime  `vici:"uptime"`
-	Workers   workers `vici:"workers"`
-	Queues    queues  `vici:"queues"`
-	Scheduled uint64  `vici:"scheduled"`
-	IKESAs    ikeSAs  `vici:"ikesas"`
+	Uptime    uptime   `vici:"uptime"`
+	Workers   *workers `vici:"workers"`
+	Queues    *queues  `vici:"queues"`
+	Scheduled *uint64  `vici:"scheduled"`
+	IKESAs    ikeSAs   `vici:"ikesas"`
 }
 
 type uptime struct {
@@ -66,14 +66,14 @@ type ikeSA struct {
 type childSA struct {
 	Name       string   `vici:"name"`
 	UID        uint32   `vici:"uniqueid"`
-	ReqID      uint32   `vici:"reqid"`
+	ReqID      *uint32  `vici:"reqid"`
 	State      string   `vici:"state"`
 	Mode       string   `vici:"mode"`
 	Protocol   string   `vici:"protocol"`
 	InBytes    uint64   `vici:"bytes-in"`
-	InPackets  uint64   `vici:"packets-in"`
+	InPackets  *uint64  `vici:"packets-in"`
 	OutBytes   uint64   `vici:"bytes-out"`
-	OutPackets uint64   `vici:"packets-out"`
+	OutPackets *uint64  `vici:"packets-out"`
 	Installed  *int64   `vici:"install-time"`
 	LocalTS    []string `vici:"local-ts"`
 	RemoteTS   []string `vici:"remote-ts"`

@@ -1,0 +1,14 @@
+Status of IKE charon daemon (strongSwan 5.9.1, Linux 5.4.39-linuxkit, x86_64):
+  uptime: 52 seconds, since Nov 13 11:13:34 2021
+  malloc: sbrk 2433024, mmap 0, used 551888, free 1881136
+  worker threads: 11 of 16 idle, 5/0/0/0 working, job queue: 0/0/0/0, scheduled: 0
+  loaded plugins: charon aesni aes rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem openssl fips-prf gmp agent xcbc hmac gcm drbg attr kernel-netlink resolve socket-default connmark stroke vici updown eap-mschapv2 xauth-generic counters
+Listening IP addresses:
+  172.31.0.2
+Connections:
+   host-host:  sun...moon  IKEv2
+   host-host:   local:  [sun] uses pre-shared key authentication
+   host-host:   remote: [moon] uses pre-shared key authentication
+   host-host:   child:  dynamic === dynamic TRANSPORT
+Security Associations (0 up, 0 connecting):
+  none

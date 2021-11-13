@@ -1,0 +1,21 @@
+Status of IKE charon daemon (strongSwan 5.5.3, Linux 4.4.0-93-generic, x86_64):
+  uptime: 101 seconds, since Aug 30 17:21:42 2017
+  malloc: sbrk 2297856, mmap 0, used 290096, free 2007760
+  worker threads: 11 of 16 idle, 5/0/0/0 working, job queue: 0/0/0/0, scheduled: 3
+  loaded plugins: charon aes des rc2 sha2 sha1 md4 md5 random nonce x509 constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-default stroke vici updown eap-identity eap-mschapv2 eap-radius xauth-generic
+Listening IP addresses:
+  162.23.112.110
+  10.10.0.6
+  172.17.0.1
+Connections:
+vpnikev2:  162.23.112.110...45.81.93.15  IKEv2
+vpnikev2:   local:  [162.23.112.110] uses EAP_MSCHAPV2 authentication with EAP identity 'monitor'
+vpnikev2:   remote: [monitor] uses public key authentication
+vpnikev2:   child:  dynamic === 0.0.0.0/0 TRANSPORT
+Security Associations (1 up, 0 connecting):
+vpnikev2[1]: ESTABLISHED 92 seconds ago, 162.23.112.110[162.23.112.110]...45.81.93.15[monitor]
+vpnikev2[1]: IKEv2 SPIs: 6c69be09930627c6_i* 0df6e74078fdbce0_r, EAP reauthentication in 2 hours
+vpnikev2[1]: IKE proposal: AES_CBC_128/HMAC_SHA2_256_128/PRF_HMAC_SHA2_256/MODP_3072
+vpnikev2{1}:  INSTALLED, TUNNEL, reqid 1, ESP SPIs: cecde7c5_i ca578af0_o
+vpnikev2{1}:  AES_CBC_128/HMAC_SHA2_256_128, 0 bytes_i, 0 bytes_o, rekeying in 44 minutes
+vpnikev2{1}:   192.168.50.14/32 === 45.81.93.15/32

@@ -25,14 +25,21 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Start containers
+      - name: Start strongswan containers
         run: |
           for i in {1..10}; do
             echo $i:
-            docker-compose -f testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true' | grep '64 bytes_i' && break || (docker-compose -f testdata/docker/docker-compose.yml up -d --force-recreate && sleep 30)
+            docker-compose -f testdata/docker/strongswan/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true' | grep '64 bytes_i' && break || (docker-compose -f testdata/docker/strongswan/docker-compose.yml up -d --force-recreate && sleep 30)
           done
-          docker-compose -f testdata/docker/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true'
+          docker-compose -f testdata/docker/strongswan/docker-compose.yml exec -T moon /bin/sh -c 'ipsec statusall || true'
+      - name: Start libreswan containers
+        run: |
+          for i in {1..10}; do
+            echo $i:
+            docker-compose -f testdata/docker/libreswan/docker-compose.yml exec -T moon /bin/sh -c 'ipsec status || true' | grep 'ESPin=84B' && break || (docker-compose -f testdata/docker/libreswan/docker-compose.yml up -d --force-recreate && sleep 30)
+          done
+          docker-compose -f testdata/docker/libreswan/docker-compose.yml exec -T moon /bin/sh -c 'ipsec status || true'
       - name: Test
         run: go test -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
