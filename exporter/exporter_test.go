@@ -11,10 +11,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
+func TestMain(m *testing.M) {
+	now = func() time.Time { return time.Unix(0, 0).UTC() }
+	tz = time.UTC
+	os.Exit(m.Run())
+}
+
 func TestExporter_Collect(t *testing.T) {
-	now = func() time.Time {
-		return time.Unix(0, 0)
-	}
 	exporter, err := New(CollectorIpsec, nil, 0, nil, log.NewNopLogger())
 	if err != nil {
 		t.Fatalf("New() = _, %v; want nil", err)

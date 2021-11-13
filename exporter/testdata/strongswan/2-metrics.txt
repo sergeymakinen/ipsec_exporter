@@ -33,7 +33,7 @@ ipsec_queues{priority="medium"} 0
 ipsec_up 1
 # HELP ipsec_uptime_seconds Number of seconds since the daemon started.
 # TYPE ipsec_uptime_seconds gauge
-ipsec_uptime_seconds -1.504102902e+09
+ipsec_uptime_seconds -1.504113702e+09
 # HELP ipsec_workers_total Number of worker threads.
 # TYPE ipsec_workers_total gauge
 ipsec_workers_total 16

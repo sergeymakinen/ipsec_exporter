@@ -66,7 +66,10 @@ var (
 	childSAStates = make(map[string]float64)
 )
 
-var now = time.Now
+var (
+	now = time.Now
+	tz  = time.Local
+)
 
 // Exporter collects IPsec stats via a VICI protocol or an ipsec binary
 // and exports them using the prometheus metrics package.
@@ -157,12 +160,11 @@ func (e *Exporter) scrapeIpsec() (m metrics, ok bool) {
 }
 
 func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
-	ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1)
 	if m.Stats.Uptime.Since != "" {
-		uptime, err := time.ParseInLocation("Jan _2 15:04:05 2006", m.Stats.Uptime.Since, time.Local)
+		uptime, err := time.ParseInLocation("Jan _2 15:04:05 2006", m.Stats.Uptime.Since, tz)
 		if err != nil {
 			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
-			level.Error(e.logger).Log("msg", "Failed to unmarshal uptime", "uptime", m.Stats.Uptime.Since, "err", err)
+			level.Error(e.logger).Log("msg", "Failed to parse uptime", "uptime", m.Stats.Uptime.Since, "err", err)
 			return
 		}
 		ch <- prometheus.MustNewConstMetric(e.uptime, prometheus.GaugeValue, now().Round(time.Second).Sub(uptime).Seconds())
@@ -241,6 +243,7 @@ func (e *Exporter) collect(m metrics, ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+	ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1)
 }
 
 // New returns an initialized exporter.

@@ -15,9 +15,6 @@ import (
 )
 
 func TestExporter_scrapeLibreswan(t *testing.T) {
-	now = func() time.Time {
-		return time.Unix(0, 0)
-	}
 	files, err := filepath.Glob("testdata/libreswan/*-command.txt")
 	if err != nil {
 		t.Fatalf("failed to list test files: %v", err)
