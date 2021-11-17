@@ -1,0 +1,21 @@
+# HELP ipsec_child_sa_bytes_in Number of input bytes processed.
+# TYPE ipsec_child_sa_bytes_in gauge
+ipsec_child_sa_bytes_in{ike_sa_local_host="172.31.1.1",ike_sa_local_id="",ike_sa_name="host-host",ike_sa_remote_host="172.31.1.2",ike_sa_remote_id="",ike_sa_remote_identity="",ike_sa_uid="X",ike_sa_version="2",ike_sa_vips="",local_ts="",mode="TUNNEL",name="host-host",protocol="ESP",remote_ts="",reqid="",uid="X"} 84
+# HELP ipsec_child_sa_bytes_out Number of output bytes processed.
+# TYPE ipsec_child_sa_bytes_out gauge
+ipsec_child_sa_bytes_out{ike_sa_local_host="172.31.1.1",ike_sa_local_id="",ike_sa_name="host-host",ike_sa_remote_host="172.31.1.2",ike_sa_remote_id="",ike_sa_remote_identity="",ike_sa_uid="X",ike_sa_version="2",ike_sa_vips="",local_ts="",mode="TUNNEL",name="host-host",protocol="ESP",remote_ts="",reqid="",uid="X"} 84
+# HELP ipsec_child_sa_state Child SA state.
+# TYPE ipsec_child_sa_state gauge
+ipsec_child_sa_state{ike_sa_local_host="172.31.1.1",ike_sa_local_id="",ike_sa_name="host-host",ike_sa_remote_host="172.31.1.2",ike_sa_remote_id="",ike_sa_remote_identity="",ike_sa_uid="X",ike_sa_version="2",ike_sa_vips="",local_ts="",mode="TUNNEL",name="host-host",protocol="ESP",remote_ts="",reqid="",uid="X"} 46
+# HELP ipsec_half_open_ike_sas Number of IKE SAs in half-open state.
+# TYPE ipsec_half_open_ike_sas gauge
+ipsec_half_open_ike_sas 0
+# HELP ipsec_ike_sa_state IKE SA state.
+# TYPE ipsec_ike_sa_state gauge
+ipsec_ike_sa_state{local_host="172.31.1.1",local_id="",name="host-host",remote_host="172.31.1.2",remote_id="",remote_identity="",uid="X",version="2",vips=""} 45
+# HELP ipsec_ike_sas Number of currently registered IKE SAs.
+# TYPE ipsec_ike_sas gauge
+ipsec_ike_sas 1
+# HELP ipsec_up Was the last scrape successful.
+# TYPE ipsec_up gauge
+ipsec_up 1
