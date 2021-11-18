@@ -28,4 +28,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USER: ${{ env.USER }}
-          HOSNAME: ${{ env.HOSTNAME }}
+          HOSTNAME: ${{ env.HOSTNAME }}
