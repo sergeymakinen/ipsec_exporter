@@ -66,7 +66,6 @@ var lsStates = map[string]float64{
 	"STATE_MODE_CFG_I1":    25,
 	"STATE_XAUTH_I0":       26,
 	"STATE_XAUTH_I1":       27,
-	"STATE_IKEv1_ROOF":     28,
 
 	"STATE_V2_PARENT_I0":            29,
 	"STATE_V2_PARENT_I1":            30,

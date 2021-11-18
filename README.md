@@ -108,7 +108,6 @@ make
 | STATE_MODE_CFG_I1 | 25
 | STATE_XAUTH_I0 | 26
 | STATE_XAUTH_I1 | 27
-| STATE_IKEv1_ROOF | 28
 | STATE_V2_PARENT_I0 | 29
 | STATE_V2_PARENT_I1 | 30
 | STATE_V2_PARENT_I2 | 31
@@ -139,7 +138,7 @@ make
 * __`vici.address`:__ VICI socket address. Example: `unix:///var/run/charon.vici` or `tcp://127.0.0.1:4502`.
 * __`vici.timeout`:__ VICI socket connect timeout.
 * __`collector`:__ Collector type to scrape metrics with. `vici` or `ipsec`.
-* __`ipsec.command`:__ Command to scrape IPsec metrics when the collector is configured to an `ipsec` binary. 
+* __`ipsec.command`:__ Command to scrape IPsec metrics when the collector is configured to an `ipsec` binary. `ipsec statusall` by default.
   To use with libreswan, set to `ipsec status`.
 * __`web.listen-address`:__ Address to listen on for web interface and telemetry.
 * __`web.telemetry-path`:__ Path under which to expose metrics.
