@@ -5,7 +5,7 @@ builds:
       -X github.com/prometheus/common/version.Version={{.Version}}
       -X github.com/prometheus/common/version.Revision={{.FullCommit}}
       -X github.com/prometheus/common/version.Branch={{.Branch}}
-      -X github.com/prometheus/common/version.BuildUser={{.Env.USER}}@{{.Env.HOST}}
+      -X github.com/prometheus/common/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
       -X github.com/prometheus/common/version.BuildDate={{time "20060102-15:04:05"}}
     tags:
       - netgo
@@ -19,15 +19,15 @@ builds:
       - freebsd_386
       - freebsd_amd64
       - freebsd_arm64
-      - freebsd_armv6
-      - freebsd_armv7
+      - freebsd_arm_6
+      - freebsd_arm_7
       - illumos_amd64
       - linux_386
       - linux_amd64
       - linux_arm64
-      - linux_armv5
-      - linux_armv6
-      - linux_armv7
+      - linux_arm_5
+      - linux_arm_6
+      - linux_arm_7
       - linux_mips
       - linux_mips64
       - linux_mips64le
@@ -38,12 +38,12 @@ builds:
       - netbsd_386
       - netbsd_amd64
       - netbsd_arm64
-      - netbsd_armv6
-      - netbsd_armv7
+      - netbsd_arm_6
+      - netbsd_arm_7
       - openbsd_386
       - openbsd_amd64
       - openbsd_arm64
-      - openbsd_armv7
+      - openbsd_arm_7
       - windows_386
       - windows_amd64
       - windows_arm64

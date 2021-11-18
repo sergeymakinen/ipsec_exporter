@@ -18,7 +18,7 @@ jobs:
       - name: Set build info
         run: |
           echo "USER=$(whoami)" >> $GITHUB_ENV
-          echo "HOST=$(hostname)" >> $GITHUB_ENV
+          echo "HOSTNAME=$(hostname)" >> $GITHUB_ENV
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
