@@ -1,44 +1,44 @@
-package exporter
+package metric
 
-type metrics struct {
-	Stats  stats
-	Pools  []pool
-	IKESAs []*ikeSA
+type Metrics struct {
+	Stats  Stats
+	Pools  []Pool
+	IKESAs []*IkeSA
 }
 
-type stats struct {
-	Uptime    uptime   `vici:"uptime"`
-	Workers   *workers `vici:"workers"`
-	Queues    *queues  `vici:"queues"`
+type Stats struct {
+	Uptime    Uptime   `vici:"uptime"`
+	Workers   *Workers `vici:"workers"`
+	Queues    *Queues  `vici:"queues"`
 	Scheduled *uint64  `vici:"scheduled"`
-	IKESAs    ikeSAs   `vici:"ikesas"`
+	IKESAs    IkeSAs   `vici:"ikesas"`
 }
 
-type uptime struct {
+type Uptime struct {
 	Since string `vici:"since"`
 }
 
-type workers struct {
+type Workers struct {
 	Total  uint64 `vici:"total"`
 	Idle   uint64 `vici:"idle"`
-	Active queues `vici:"active"`
+	Active Queues `vici:"active"`
 }
 
-type queues struct {
+type Queues struct {
 	Critical uint64 `vici:"critical"`
 	High     uint64 `vici:"high"`
 	Medium   uint64 `vici:"medium"`
 	Low      uint64 `vici:"low"`
 }
 
-func (q queues) Total() uint64 { return q.Critical + q.High + q.Medium + q.Low }
+func (q Queues) Total() uint64 { return q.Critical + q.High + q.Medium + q.Low }
 
-type ikeSAs struct {
+type IkeSAs struct {
 	Total    uint64 `vici:"total"`
 	HalfOpen uint64 `vici:"half-open"`
 }
 
-type pool struct {
+type Pool struct {
 	Name    string
 	Address string `vici:"base"`
 	Size    uint64 `vici:"size"`
@@ -46,7 +46,7 @@ type pool struct {
 	Offline uint64 `vici:"offline"`
 }
 
-type ikeSA struct {
+type IkeSA struct {
 	Name          string
 	UID           uint32              `vici:"uniqueid"`
 	Version       uint8               `vici:"version"`
@@ -60,10 +60,10 @@ type ikeSA struct {
 	Established   *int64              `vici:"established"`
 	LocalVIPs     []string            `vici:"local-vips"`
 	RemoteVIPs    []string            `vici:"remote-vips"`
-	ChildSAs      map[string]*childSA `vici:"child-sas"`
+	ChildSAs      map[string]*ChildSA `vici:"child-sas"`
 }
 
-type childSA struct {
+type ChildSA struct {
 	Name       string   `vici:"name"`
 	UID        uint32   `vici:"uniqueid"`
 	ReqID      *uint32  `vici:"reqid"`

@@ -1,9 +1,0 @@
-# HELP ipsec_half_open_ike_sas Number of IKE SAs in half-open state.
-# TYPE ipsec_half_open_ike_sas gauge
-ipsec_half_open_ike_sas 0
-# HELP ipsec_ike_sas Number of currently registered IKE SAs.
-# TYPE ipsec_ike_sas gauge
-ipsec_ike_sas 0
-# HELP ipsec_up Was the last scrape successful.
-# TYPE ipsec_up gauge
-ipsec_up 1
