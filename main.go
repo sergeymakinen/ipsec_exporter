@@ -5,16 +5,18 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/google/shlex"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
-	"github.com/sergeymakinen/ipsec_exporter/exporter"
+	col "github.com/spheromak/ipsec_exporter/internal/collector"
+	vicimetrics "github.com/spheromak/ipsec_exporter/internal/collector/vici"
+	"github.com/spheromak/ipsec_exporter/internal/ourlog"
+	"github.com/spheromak/ipsec_exporter/pkg/exporter"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -43,33 +45,37 @@ func newCmd(s kingpin.Settings) (target *[]string) {
 
 func main() {
 	var (
-		address       = kingpin.Flag("vici.address", "VICI socket address.").PlaceHolder(`"` + viciDefaultAddress + `"`).Default(viciDefaultAddress).URL()
-		timeout       = kingpin.Flag("vici.timeout", "VICI socket connect timeout.").Default("1s").Duration()
-		collector     = kingpin.Flag("collector", "Collector type to scrape metrics with. One of: [vici, ipsec]").Default("vici").Enum("vici", "ipsec")
-		listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9903").String()
-		metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+		address     = kingpin.Flag("vici.address", "VICI socket address.").PlaceHolder(`"` + viciDefaultAddress + `"`).Default(viciDefaultAddress).URL()
+		timeout     = kingpin.Flag("vici.timeout", "VICI socket connect timeout.").Default("1s").Duration()
+		collector   = kingpin.Flag("collector", "Collector type to scrape metrics with. One of: [vici, ipsec]").Default("vici").Enum("vici", "ipsec")
+		metricsPath = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+		webConfig   = kingpinflag.AddFlags(kingpin.CommandLine, ":9903")
 	)
-	promlogConfig := &promlog.Config{}
-	flag.AddFlags(kingpin.CommandLine, promlogConfig)
+
+	flag.AddFlags(kingpin.CommandLine, ourlog.Config)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Version(version.Print("ipsec_exporter"))
 	kingpin.Parse()
-	logger := promlog.New(promlogConfig)
 
-	level.Info(logger).Log("msg", "Starting ipsec_exporter", "version", version.Info())
-	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
+	ourlog.Info("msg", "Starting ipsec_exporter", "version", version.Info())
+	ourlog.Info("msg", "Build context", "context", version.BuildContext())
 	//ipsecCmd := []string{"ipsec", "statusall"}
-
 	prometheus.MustRegister(version.NewCollector("ipsec_exporter"))
 
-	col := vici.Collector
+	var err error
+	var c col.Scraper
+
 	if *collector == "vici" {
-		col = ipsec.Collector
+		c, err = vicimetrics.New(*address, *timeout)
+		if err != nil {
+			ourlog.Error("msg", "Error creating vicimetrics", "err", err)
+			os.Exit(1)
+		}
 	}
 
-	exporter, err := exporter.New()
+	exporter, err := exporter.New(c)
 	if err != nil {
-		level.Error(logger).Log("msg", "Error creating the exporter", "err", err)
+		level.Error(ourlog.Default).Log("msg", "Error creating the exporter", "err", err)
 		os.Exit(1)
 	}
 	prometheus.MustRegister(exporter)
@@ -85,11 +91,17 @@ func main() {
              </html>`))
 	})
 
-	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)
-	srv := &http.Server{Addr: *listenAddress}
-	webConfig := kingpinflag.AddFlags(kingpin.CommandLine, *listenAddress)
-	if err := web.ListenAndServe(srv, webConfig, logger); err != nil {
-		level.Error(logger).Log("msg", "Error running HTTP server", "err", err)
+	srv := &http.Server{}
+	ourlog.Info("msg", "Starting server")
+	err = web.ListenAndServe(
+		srv,
+		webConfig,
+		ourlog.Default,
+	)
+	if err != nil {
+		ourlog.Error("msg", "Error running HTTP server", "err", err)
 		os.Exit(1)
 	}
+
+	ourlog.Info("msg", "Shutting down")
 }

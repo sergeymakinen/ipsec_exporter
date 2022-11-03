@@ -2,18 +2,17 @@
 package exporter
 
 import (
+	"context"
+	"fmt"
 	"math"
-	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/sergeymakinen/ipsec_exporter/internal/collector"
-	"github.com/sergeymakinen/ipsec_exporter/pkg/metric"
+	"github.com/spheromak/ipsec_exporter/internal/collector"
+	"github.com/spheromak/ipsec_exporter/internal/ourlog"
+	"github.com/spheromak/ipsec_exporter/pkg/metric"
 )
 
 // Collector types.
@@ -22,11 +21,8 @@ type CollectorType int
 const (
 	CollectorVICI CollectorType = iota
 	CollectorIpsec
+	namespace = "ipsec"
 )
-
-const namespace = "ipsec"
-
-var ()
 
 var (
 	ikeSALbls = []string{
@@ -40,6 +36,7 @@ var (
 		"remote_identity",
 		"vips",
 	}
+
 	childSALbls = []string{
 		"ike_sa_name",
 		"ike_sa_uid",
@@ -58,13 +55,10 @@ var (
 		"local_ts",
 		"remote_ts",
 	}
-)
-var (
+
 	ikeSAStates   = make(map[string]float64)
 	childSAStates = make(map[string]float64)
-)
 
-var (
 	now = time.Now
 	tz  = time.Local
 )
@@ -72,8 +66,8 @@ var (
 // Exporter collects IPsec stats via a VICI protocol or an ipsec binary
 // and exports them using the prometheus metrics package.
 type Exporter struct {
-	config *Config
-	mu     sync.Mutex
+	collector collector.Scraper
+	logCTX    context.Context
 
 	up                *prometheus.Desc
 	uptime            *prometheus.Desc
@@ -94,14 +88,6 @@ type Exporter struct {
 	childSABytesOut   *prometheus.Desc
 	childSAPacketsOut *prometheus.Desc
 	childSAInstalled  *prometheus.Desc
-}
-
-func (e *Exporter) Lock() {
-	e.mu.Lock()
-}
-
-func (e *Exporter) Unlock() {
-	e.mu.Unlock()
 }
 
 // Describe describes all the metrics exported by the IPsec exporter. It
@@ -131,22 +117,26 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // Collect fetches the statistics from strongswan/libreswan, and
 // delivers them as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	m, ok := e.scrape(e)
-	if !ok {
+	var err error
+	m, err := e.collector.Scrape()
+	if err != nil {
+		ourlog.Error("msg", "Failed to scrap", "err", err)
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
 		return
 	}
 
-	e.collect(m, ch)
+	err = e.collect(m, ch)
+	if err != nil {
+		ourlog.Error("msg", "Failed to process", "err", err)
+	}
 }
 
-func (e *Exporter) collect(m metric.Metrics, ch chan<- prometheus.Metric) {
+func (e *Exporter) collect(m metric.Metrics, ch chan<- prometheus.Metric) error {
 	if m.Stats.Uptime.Since != "" {
 		uptime, err := time.ParseInLocation("Jan _2 15:04:05 2006", m.Stats.Uptime.Since, tz)
 		if err != nil {
 			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
-			level.Error(e.logger).Log("msg", "Failed to parse uptime", "uptime", m.Stats.Uptime.Since, "err", err)
-			return
+			return fmt.Errorf("Failed to parse uptime '%s': %w", m.Stats.Uptime, err)
 		}
 		ch <- prometheus.MustNewConstMetric(e.uptime, prometheus.GaugeValue, now().Round(time.Second).Sub(uptime).Seconds())
 	}
@@ -225,26 +215,13 @@ func (e *Exporter) collect(m metric.Metrics, ch chan<- prometheus.Metric) {
 		}
 	}
 	ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1)
-}
-
-type Config struct {
-	// Type is the collector type to envoke
-	Collector collector.Scraper
-
-	// Address is the bind address for the metric server
-	Address *url.URL
-
-	// Timeout is the server side timeout for connections when processing metrics
-	Timeout time.Duration
-
-	// Logger is the go-kit/log logger we want to be talking too
-	Logger log.Logger
+	return nil
 }
 
 // New returns an initialized exporter.
-func New(c *Config) (*Exporter, error) {
+func New(c collector.Scraper) (*Exporter, error) {
 	e := &Exporter{
-		config: c,
+		collector: c,
 
 		up: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "up"),

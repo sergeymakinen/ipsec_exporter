@@ -1,5 +1,9 @@
 package collector
 
+import (
+	"github.com/spheromak/ipsec_exporter/pkg/metric"
+)
+
 type Scraper interface {
-	Scrape(*exporter) (metrics, bool)
+	Scrape() (metric.Metrics, error)
 }

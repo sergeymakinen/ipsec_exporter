@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"sync"
 	"time"
 
-	"github.com/sergeymakinen/ipsec_exporter/pkg/exporter"
-	"github.com/sergeymakinen/ipsec_exporter/pkg/metric"
+	"github.com/spheromak/ipsec_exporter/pkg/metric"
 	"github.com/strongswan/govici/vici"
 )
 
@@ -15,7 +15,7 @@ type Collector struct {
 	address *url.URL
 	timeout time.Duration
 	vici    *vici.Session
-
+	mu      sync.Mutex
 	metrics *metric.Metrics
 }
 
@@ -68,9 +68,9 @@ func (c *Collector) runcmd(cmd string, v interface{}) error {
 	return nil
 }
 
-func (c *Collector) Scrape(e *exporter.Exporter) (metric.Metrics, error) {
-	e.Lock()
-	defer e.Unlock()
+func (c *Collector) Scrape() (metric.Metrics, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if err := c.connect(); err != nil {
 		return *c.metrics, err

@@ -1,4 +1,4 @@
-module github.com/sergeymakinen/ipsec_exporter
+module github.com/spheromak/ipsec_exporter
 
 go 1.14
 
@@ -13,6 +13,7 @@ require (
 	github.com/prometheus/common v0.37.0
 	github.com/prometheus/exporter-toolkit v0.8.1
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/strongswan/govici v0.6.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
