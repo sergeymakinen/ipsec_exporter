@@ -120,7 +120,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var err error
 	m, err := e.collector.Scrape()
 	if err != nil {
-		ourlog.Error("msg", "Failed to scrap", "err", err)
+		ourlog.Error("msg", "Failed to scrape", "err", err, "metric", m)
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
 		return
 	}

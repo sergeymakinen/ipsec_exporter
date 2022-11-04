@@ -91,10 +91,9 @@ func main() {
              </html>`))
 	})
 
-	srv := &http.Server{}
 	ourlog.Info("msg", "Starting server")
 	err = web.ListenAndServe(
-		srv,
+		&http.Server{},
 		webConfig,
 		ourlog.Default,
 	)
