@@ -15,16 +15,15 @@ import (
 	"github.com/spheromak/ipsec_exporter/pkg/metric"
 )
 
-// Collector types.
-type CollectorType int
-
-const (
-	CollectorVICI CollectorType = iota
-	CollectorIpsec
-	namespace = "ipsec"
-)
+const namespace = "ipsec"
 
 var (
+	ikeSAStates   = make(map[string]float64)
+	childSAStates = make(map[string]float64)
+
+	now = time.Now
+	tz  = time.Local
+
 	ikeSALbls = []string{
 		"name",
 		"uid",
@@ -56,11 +55,57 @@ var (
 		"remote_ts",
 	}
 
-	ikeSAStates   = make(map[string]float64)
-	childSAStates = make(map[string]float64)
+	lsStates = map[string]float64{
+		"STATE_MAIN_R0":        0,
+		"STATE_MAIN_I1":        1,
+		"STATE_MAIN_R1":        2,
+		"STATE_MAIN_I2":        3,
+		"STATE_MAIN_R2":        4,
+		"STATE_MAIN_I3":        5,
+		"STATE_MAIN_R3":        6,
+		"STATE_MAIN_I4":        7,
+		"STATE_AGGR_R0":        8,
+		"STATE_AGGR_I1":        9,
+		"STATE_AGGR_R1":        10,
+		"STATE_AGGR_I2":        11,
+		"STATE_AGGR_R2":        12,
+		"STATE_QUICK_R0":       13,
+		"STATE_QUICK_I1":       14,
+		"STATE_QUICK_R1":       15,
+		"STATE_QUICK_I2":       16,
+		"STATE_QUICK_R2":       17,
+		"STATE_INFO":           18,
+		"STATE_INFO_PROTECTED": 19,
+		"STATE_XAUTH_R0":       20,
+		"STATE_XAUTH_R1":       21,
+		"STATE_MODE_CFG_R0":    22,
+		"STATE_MODE_CFG_R1":    23,
+		"STATE_MODE_CFG_R2":    24,
+		"STATE_MODE_CFG_I1":    25,
+		"STATE_XAUTH_I0":       26,
+		"STATE_XAUTH_I1":       27,
 
-	now = time.Now
-	tz  = time.Local
+		"STATE_V2_PARENT_I0":            29,
+		"STATE_V2_PARENT_I1":            30,
+		"STATE_V2_PARENT_I2":            31,
+		"STATE_V2_PARENT_R0":            32,
+		"STATE_V2_PARENT_R1":            33,
+		"STATE_V2_IKE_AUTH_CHILD_I0":    34,
+		"STATE_V2_IKE_AUTH_CHILD_R0":    35,
+		"STATE_V2_NEW_CHILD_I0":         36,
+		"STATE_V2_NEW_CHILD_I1":         37,
+		"STATE_V2_REKEY_IKE_I0":         38,
+		"STATE_V2_REKEY_IKE_I1":         39,
+		"STATE_V2_REKEY_CHILD_I0":       40,
+		"STATE_V2_REKEY_CHILD_I1":       41,
+		"STATE_V2_NEW_CHILD_R0":         42,
+		"STATE_V2_REKEY_IKE_R0":         43,
+		"STATE_V2_REKEY_CHILD_R0":       44,
+		"STATE_V2_ESTABLISHED_IKE_SA":   45,
+		"STATE_V2_ESTABLISHED_CHILD_SA": 46,
+		"STATE_V2_IKE_SA_DELETE":        47,
+		"STATE_V2_CHILD_SA_DELETE":      48,
+	}
 )
 
 // Exporter collects IPsec stats via a VICI protocol or an ipsec binary
@@ -220,6 +265,11 @@ func (e *Exporter) collect(m metric.Metrics, ch chan<- prometheus.Metric) error 
 
 // New returns an initialized exporter.
 func New(c collector.Scraper) (*Exporter, error) {
+	for k, v := range lsStates {
+		ikeSAStates[k] = v
+		childSAStates[k] = v
+	}
+
 	e := &Exporter{
 		collector: c,
 

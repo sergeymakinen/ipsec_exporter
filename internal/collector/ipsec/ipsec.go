@@ -1,32 +1,53 @@
-package ipsec
+package ipsecmetrics
 
 import (
 	"fmt"
 	"os/exec"
+	"sync"
 
-	"github.com/go-kit/log/level"
+	"github.com/spheromak/ipsec_exporter/internal/ourlog"
+	"github.com/spheromak/ipsec_exporter/pkg/metric"
 )
 
-func (e *collector) Scrape() (m metrics, ok bool) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	cmd := exec.Command(e.ipsecCmd[0], e.ipsecCmd[1:]...)
+const ipsecCmdPrefix = "ipsec"
+
+type Collector struct {
+	mu   sync.Mutex
+	args []string
+}
+
+func New(args []string) (*Collector, error) {
+	c := &Collector{}
+	c.args = args
+	return c, nil
+}
+
+func (c *Collector) Scrape() (metric.Metrics, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	m := metric.Metrics{}
+	cmd := exec.Command(ipsecCmdPrefix, c.args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		if lerr := level.Error(e.logger).Log("msg", "Failed to execute command", "cmd", cmd, "output", output, "err", err); lerr != 0 {
-			fmt.Println(lerr)
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			code := exitErr.ExitCode()
+			if code != 1 {
+				ourlog.Debug("msg", "Failed to execute command", "cmd", cmd, "output", output, "err", err, "status", code)
+				return m, fmt.Errorf("Failed to execute command %s, exited with code %d", cmd, code)
+			}
 		}
-
-		return
+		ourlog.Debug("msg", "Ipsec command had non zero exit code, but it may be non-fatal", "cmd", cmd, "err", err)
 	}
+
 	switch {
 	case reSSMarker.Match(output):
-		level.Debug(e.logger).Log("msg", "Output type is detected as strongswan", "cmd", cmd)
-		return e.scrapeStrongswan(output)
+		ourlog.Debug("msg", "Output type is detected as strongswan", "cmd", cmd)
+		return scrapeStrongswan(output), nil
 	case reLSMarker.Match(output):
-		level.Debug(e.logger).Log("msg", "Output type is detected as libreswan", "cmd", cmd)
-		return e.scrapeLibreswan(output)
+		ourlog.Debug("msg", "Output type is detected as libreswan", "cmd", cmd)
+		return scrapeLibreswan(output), nil
 	}
-	level.Error(e.logger).Log("msg", "Failed to recognize output type", "cmd", cmd, "output", output)
-	return
+
+	ourlog.Debug("msg", "Failed to recognize output", "cmd", cmd, "output", output)
+	return m, fmt.Errorf("Failed to recognize output type for cmd %s", cmd)
 }

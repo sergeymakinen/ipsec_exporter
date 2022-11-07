@@ -14,18 +14,16 @@ import (
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	col "github.com/spheromak/ipsec_exporter/internal/collector"
+	ipsecmetrics "github.com/spheromak/ipsec_exporter/internal/collector/ipsec"
 	vicimetrics "github.com/spheromak/ipsec_exporter/internal/collector/vici"
 	"github.com/spheromak/ipsec_exporter/internal/ourlog"
 	"github.com/spheromak/ipsec_exporter/pkg/exporter"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-// Collector types.
-type CollectorType int
-
 const (
-	CollectorVICI CollectorType = iota
-	CollectorIpsec
+	viciFlag  = "vici"
+	ipsecFlag = "ipsec"
 )
 
 type cmdValue []string
@@ -47,8 +45,9 @@ func main() {
 	var (
 		address     = kingpin.Flag("vici.address", "VICI socket address.").PlaceHolder(`"` + viciDefaultAddress + `"`).Default(viciDefaultAddress).URL()
 		timeout     = kingpin.Flag("vici.timeout", "VICI socket connect timeout.").Default("1s").Duration()
-		collector   = kingpin.Flag("collector", "Collector type to scrape metrics with. One of: [vici, ipsec]").Default("vici").Enum("vici", "ipsec")
+		collector   = kingpin.Flag("collector", "Collector type to scrape metrics with. One of: [vici, ipsec]").Default(viciFlag).Enum(viciFlag, ipsecFlag)
 		metricsPath = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+		ipsecArgs   = kingpin.Flag("ipsec.args", "Arguments to pass to ipsec command").PlaceHolder(`"statusall"`).Default("statusall").Strings()
 		webConfig   = kingpinflag.AddFlags(kingpin.CommandLine, ":9903")
 	)
 
@@ -65,10 +64,18 @@ func main() {
 	var err error
 	var c col.Scraper
 
-	if *collector == "vici" {
+	if *collector == viciFlag {
 		c, err = vicimetrics.New(*address, *timeout)
 		if err != nil {
 			ourlog.Error("msg", "Error creating vicimetrics", "err", err)
+			os.Exit(1)
+		}
+	}
+
+	if *collector == ipsecFlag {
+		c, err = ipsecmetrics.New(*ipsecArgs)
+		if err != nil {
+			ourlog.Error("msg", "Error creating ipsecmetrics", "err", err)
 			os.Exit(1)
 		}
 	}

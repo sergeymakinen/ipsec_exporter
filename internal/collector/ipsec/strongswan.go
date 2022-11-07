@@ -1,10 +1,12 @@
-package exporter
+package ipsecmetrics
 
 import (
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/spheromak/ipsec_exporter/pkg/metric"
 )
 
 const (
@@ -56,7 +58,7 @@ var (
 	ssChildSATSRE        = regexp.MustCompile(`^ (.+) === (.+)$`)
 )
 
-func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
+func scrapeStrongswan(b []byte) (m metric.Metrics) {
 	// Looking for prefixes then scanning lines below for matching regexps
 	lines := strings.Split(string(b)+"\n", "\n")
 	for i, line := range lines {
@@ -77,14 +79,14 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 				}
 				matches = ssStatsRE.FindStringSubmatch(line)
 				if matches != nil {
-					m.Stats.Workers = &workers{}
+					m.Stats.Workers = &metric.Workers{}
 					m.Stats.Workers.Idle, _ = strconv.ParseUint(matches[1], 10, 64)
 					m.Stats.Workers.Total, _ = strconv.ParseUint(matches[2], 10, 64)
 					m.Stats.Workers.Active.Critical, _ = strconv.ParseUint(matches[3], 10, 64)
 					m.Stats.Workers.Active.High, _ = strconv.ParseUint(matches[4], 10, 64)
 					m.Stats.Workers.Active.Medium, _ = strconv.ParseUint(matches[5], 10, 64)
 					m.Stats.Workers.Active.Low, _ = strconv.ParseUint(matches[6], 10, 64)
-					m.Stats.Queues = &queues{}
+					m.Stats.Queues = &metric.Queues{}
 					m.Stats.Queues.Critical, _ = strconv.ParseUint(matches[7], 10, 64)
 					m.Stats.Queues.High, _ = strconv.ParseUint(matches[8], 10, 64)
 					m.Stats.Queues.Medium, _ = strconv.ParseUint(matches[9], 10, 64)
@@ -103,7 +105,7 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 				if matches == nil {
 					break
 				}
-				pool := pool{Address: matches[1]}
+				pool := metric.Pool{Address: matches[1]}
 				pool.Size, _ = strconv.ParseUint(matches[2], 10, 64)
 				pool.Online, _ = strconv.ParseUint(matches[3], 10, 64)
 				pool.Offline, _ = strconv.ParseUint(matches[4], 10, 64)
@@ -120,8 +122,8 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 				}
 				var (
 					prefix, childPrefix []string
-					sa, prevSA          *ikeSA
-					childSA2            *childSA
+					sa, prevSA          *metric.IkeSA
+					childSA2            *metric.ChildSA
 				)
 
 			Loop:
@@ -136,9 +138,9 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 						matches = ssSAPrefixRE.FindStringSubmatch(line)
 						if matches != nil {
 							prefix = matches
-							sa = &ikeSA{
+							sa = &metric.IkeSA{
 								Name:     matches[1],
-								ChildSAs: make(map[string]*childSA),
+								ChildSAs: make(map[string]*metric.ChildSA),
 							}
 							n, _ := strconv.ParseUint(matches[2], 10, 32)
 							sa.UID = uint32(n)
@@ -148,7 +150,7 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 							matches = ssChildSAPrefixRE.FindStringSubmatch(line)
 							if matches != nil {
 								childPrefix = matches
-								childSA2 = &childSA{Name: matches[1]}
+								childSA2 = &metric.ChildSA{Name: matches[1]}
 								n, _ := strconv.ParseUint(matches[2], 10, 32)
 								childSA2.UID = uint32(n)
 								if prevSA != nil {
@@ -223,15 +225,5 @@ func (e *Exporter) scrapeStrongswan(b []byte) (m metrics, ok bool) {
 			}
 		}
 	}
-	ok = true
 	return
-}
-
-func init() {
-	for k, v := range ssIKESAStates {
-		ikeSAStates[k] = v
-	}
-	for k, v := range ssChildSAStates {
-		childSAStates[k] = v
-	}
 }
