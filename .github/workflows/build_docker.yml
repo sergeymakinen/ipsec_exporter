@@ -33,6 +33,7 @@ jobs:
         with:
           publish: false
           platform: linux/amd64
+          imageName: ${REPO}
 
       # 🤓 https://github.com/marketplace/actions/ghcr-docker-buildx-build
       #- name: GHCR Docker Buildx Build
