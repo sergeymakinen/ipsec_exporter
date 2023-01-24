@@ -11,6 +11,12 @@ jobs:
       - name: downcase REPO
         run: |
           echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+      # 🤓 https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+
       - name: Setup Go environment
         uses: actions/setup-go@v3
         with:
