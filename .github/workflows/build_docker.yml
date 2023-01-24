@@ -14,9 +14,9 @@ jobs:
         check-latest: true
     - name: Build Docker Image
       run: |
-        docker build -t ghcr.io/habitatenergy/ipsec_exporter:${{ env.GITHUB_SHA }} .
+        docker build -t $GITHUB_REPOSITORY:$GITHUB_RUN_ID .
     - name: Push Docker Image
       run: |
         echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-        docker push ghcr.io/habitatenergy/ipsec_exporter:${{ env.GITHUB_SHA }}
+        docker push ghcr.io/$GITHUB_REPOSITORY:$GITHUB_RUN_ID
 
