@@ -32,6 +32,7 @@ jobs:
         uses: zmingxie/docker_buildx@master
         with:
           publish: false
+          platform: linux/amd64
 
       # 🤓 https://github.com/marketplace/actions/ghcr-docker-buildx-build
       #- name: GHCR Docker Buildx Build
