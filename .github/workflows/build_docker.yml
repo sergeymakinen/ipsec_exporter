@@ -21,15 +21,28 @@ jobs:
         uses: actions/checkout@v3.3.0
         with:
           path: main
+      #-
+      #  name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v2
+      #-
+      #  name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v2
+      -
+        name: Build and publish image
+        uses: zmingxie/docker_buildx@master
+        with:
+          publish: false
+
       # 🤓 https://github.com/marketplace/actions/ghcr-docker-buildx-build
       #- name: GHCR Docker Buildx Build
       #  uses: bskiefer/docker_buildx@v1.4
-      
+
       # 🤓 https://github.com/marketplace/actions/ghcr-action
-      - name: GHCR-Action
-        uses: KuhlTime/ghcr-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      #- name: GHCR-Action
+      #  uses: KuhlTime/ghcr-action@v1
+      #  with:
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+
       #- name: Build Docker Image0
       #  run: |
       #    docker build -t .  
@@ -37,4 +50,19 @@ jobs:
       #  run: |
       #    echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
       #    docker push ghcr.io/$REPO:$GITHUB_RUN_ID
+  docker_publish:
+    runs-on: "ubuntu-20.04"
 
+    steps:
+      - uses: actions/checkout@v2
+
+      # https://github.com/marketplace/actions/push-to-ghcr
+      - name: Build and publish a Docker image for ${{ github.repository }}
+        uses: macbre/push-to-ghcr@master
+        with:
+          image_name: ${{ github.repository }}  # it will be lowercased internally
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # optionally push to the Docker Hub (docker.io)
+          # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}  # see https://hub.docker.com/settings/security
+          # customize the username to be used when pushing to the Docker Hub
+          # docker_io_user: foobar  # see https://github.com/macbre/push-to-ghcr/issues/14
