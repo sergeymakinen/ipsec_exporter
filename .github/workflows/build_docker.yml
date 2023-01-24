@@ -1,8 +1,7 @@
 name: Build Docker Image
 on:
+  pull_request:
   push:
-    tags:
-      - '*'
 
 jobs:
   build:
