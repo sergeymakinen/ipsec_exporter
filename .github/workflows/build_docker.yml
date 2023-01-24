@@ -1,0 +1,27 @@
+name: Build Docker Image
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup go
+      run: |
+        apt-get update
+        apt-get install -y golang
+    - name: Build Code
+      run: make
+      working-directory: HabitatEnergy/ipsec_exporter
+    - name: Build Docker Image
+      run: |
+        docker build -t ghcr.io/habitatenergy/ipsec_exporter:${{ env.GITHUB_SHA }} .
+    - name: Push Docker Image
+      run: |
+        echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+        docker push ghcr.io/habitatenergy/ipsec_exporter:${{ env.GITHUB_SHA }}
+
