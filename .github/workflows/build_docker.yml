@@ -3,6 +3,7 @@ on:
   pull_request:
   push:
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,19 +22,28 @@ jobs:
         uses: actions/checkout@v3.3.0
         with:
           path: main
-      #-
+
       #  name: Set up QEMU
       #  uses: docker/setup-qemu-action@v2
-      #-
-      #  name: Set up Docker Buildx
-      #  uses: docker/setup-buildx-action@v2
       -
-        name: Build and publish image
-        uses: zmingxie/docker_buildx@master
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
         with:
-          publish: false
-          platform: linux/amd64
-          imageName: ${REPO}
+          context: .
+          file: ./Dockerfile
+          push: false
+          #tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
+
+      #-
+      #  name: Build and publish image
+      #  uses: zmingxie/docker_buildx@master
+      #  with:
+      #    publish: false
+      #    platform: linux/amd64
+      #    imageName: ${REPO}
 
       # 🤓 https://github.com/marketplace/actions/ghcr-docker-buildx-build
       #- name: GHCR Docker Buildx Build
