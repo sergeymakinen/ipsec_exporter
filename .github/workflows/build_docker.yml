@@ -39,7 +39,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: ${REPO}:latest
+          tags: $(date +%s), $REPO:latest
 
       #- 
       #  name: Build the Docker image
