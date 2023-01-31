@@ -39,6 +39,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
+          tags: latest
           #tags: $REPO:$(date +%s), $REPO:latest
 
       #- 
